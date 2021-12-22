@@ -54,27 +54,67 @@ func New(auth *authenticator.Authenticator) *gin.Engine {
 
 	router.LoadHTMLGlob("web/template/*")
 
-	router.GET("/", home.Handler)
-
-	// Generic error handler for Auth0 and Gumroad error redirects.
-	router.GET("/error", houston.Handler)
+	// Home.
+	router.GET(
+		"/",
+		middleware.Canonical,
+		home.Handler,
+	)
 
 	// Ingress health check endpoint.
-	router.GET("/healthz", healthz.Handler)
+	router.GET(
+		"/healthz",
+		healthz.Handler,
+	)
 
-	router.GET("/login", login.Handler(auth))
-	router.GET("/auth/callback", callback.Handler(auth))
-	router.GET("/logout", logout.Handler)
+	// Generic error handler for Auth0 and Gumroad error redirects.
+	router.GET(
+		"/error",
+		middleware.Canonical,
+		houston.Handler,
+	)
 
-	router.GET("/subscribe", middleware.IsAuthenticated, subscribe.Handler)
+	// User management.
+	router.GET(
+		"/auth/callback",
+		middleware.Canonical,
+		callback.Handler(auth),
+	)
+	router.GET(
+		"/login",
+		middleware.Canonical,
+		login.Handler(auth),
+	)
+	router.GET(
+		"/logout",
+		middleware.Canonical,
+		logout.Handler,
+	)
 
-	// Free routes
-	router.GET("/concepts/*path", questions.Handler)
-	router.GET("/warm-up/*path", questions.Handler)
+	// Gumroad integration.
+	router.GET(
+		"/subscribe",
+		middleware.Canonical,
+		middleware.IsAuthenticated,
+		subscribe.Handler,
+	)
 
-	// Premium routes
+	// Free routes.
+	router.GET(
+		"/concepts/*path",
+		middleware.Canonical,
+		questions.Handler,
+	)
+	router.GET(
+		"/warm-up/*path",
+		middleware.Canonical,
+		questions.Handler,
+	)
+
+	// Premium routes.
 	router.GET(
 		"/pro/*path",
+		middleware.Canonical,
 		middleware.IsAuthenticated,
 		middleware.IsSubscribed,
 		questions.Handler,
