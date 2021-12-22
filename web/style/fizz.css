@@ -22,6 +22,12 @@ html body {
 }
 body { background: #ffffff; }
 
+blockquote {
+  background: #fef9c3;
+  padding: 1em;
+  margin: 1em;
+}
+
 p {margin-top: 1.4em;margin-bottom: 1.4em;}
 
 a {
