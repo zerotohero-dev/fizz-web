@@ -11,7 +11,7 @@
 
 package authenticator
 
-// authenticator is the Auth0 integration lay
+// authenticator is the Auth0 integration layer.
 
 import (
 	"context"
