@@ -23,6 +23,7 @@ import (
 	"github.com/zerotohero-dev/fizz-web/web/app/callback"
 	"github.com/zerotohero-dev/fizz-web/web/app/healthz"
 	"github.com/zerotohero-dev/fizz-web/web/app/home"
+	"github.com/zerotohero-dev/fizz-web/web/app/houston"
 	"github.com/zerotohero-dev/fizz-web/web/app/login"
 	"github.com/zerotohero-dev/fizz-web/web/app/logout"
 	"github.com/zerotohero-dev/fizz-web/web/app/questions"
@@ -54,6 +55,9 @@ func New(auth *authenticator.Authenticator) *gin.Engine {
 	router.LoadHTMLGlob("web/template/*")
 
 	router.GET("/", home.Handler)
+
+	// Generic error handler for Auth0 and Gumroad error redirects.
+	router.GET("/error", houston.Handler)
 
 	// Ingress health check endpoint.
 	router.GET("/healthz", healthz.Handler)
