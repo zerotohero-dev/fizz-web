@@ -1,0 +1,210 @@
+/*
+ *  \
+ *  \\,
+ *   \\\,^,.,,.                     Zero to Hero
+ *   ,;7~((\))';;,,               <zerotohero.dev>
+ *   ,(@') ;)'))\;;',    stay up to date, be curious: learn
+ *    )  . ),((  ))\;,
+ *   /;',,/7),)) )) )\,,
+ *  (& )'   (,((,((;( ))\,
+ */
+
+/* ! make sure to sync it with assets.fizzbuzz.pro and also invalidate CDN */
+
+html body {
+  padding: 0; margin: 0;
+  cursor: default;
+  font-family: courier-prime, monospace;
+  font-size: 16px;
+  background: #9fa6b2;
+  -webkit-text-size-adjust: none;
+  text-size-adjust: none;
+}
+body { background: #ffffff; }
+
+p {margin-top: 1.4em;margin-bottom: 1.4em;}
+
+a {
+  color: #2D37B1;
+  padding: 4px 2px 2px 4px;
+  transition: all 250ms ease-out;
+}
+a:hover {
+  color: #000000;
+  background: #fef9c3;
+}
+
+hr {
+  max-width: 64px;
+  margin: 0;border: 0;
+  height: 2px;
+  background: #CEC6B0;
+}
+
+pre, span, div {
+    font-family: courier-prime, monospace;
+    font-size: 16px;
+}
+
+pre, div.preformatted {
+  line-height: 1.44;
+  background: #ffffff;
+  padding: 1em;
+  margin: 6em auto 1em auto;
+  border-radius: 4px;
+  max-width: 795px;
+  border-top: 16px #fde047 solid;
+  overflow: auto;
+  tab-size: 4;
+}
+
+div.preformatted pre {
+  border-top: 0;
+  color:#000000;
+  background:#fef9c3;
+  padding:1em;
+  margin: 1em;
+}
+
+div.preformatted pre p {
+  margin: 0;padding: 0;
+}
+
+div.preformatted code {
+  color: #000000;
+  background: #fef9c3;
+  padding: 2px;
+}
+
+div.preformatted pre code {
+  border: 0;padding: 0;
+  color: #382900;
+  background: #fef9c3;
+}
+
+div.preformatted hr {
+  margin-top: 2em;margin-bottom: 2em;
+}
+
+div.preformatted a {
+  display: inline;padding: 4px 2px 2px 4px;
+}
+
+div.preformatted ul {
+  margin:0;
+  padding-left:1em;
+}
+div.preformatted ol {
+  margin:0;
+  padding-left:2em;
+}
+
+div.preformatted h2:before {
+  content: '';
+  margin-bottom: 1rem;
+  width: 64px;
+  height: 2px;
+  display: block;
+  background: #CEC6B0;
+}
+
+div.preformatted h2 {
+  font-weight: normal;
+  font-size: 1.4em;
+  display: inline-block;
+  color: #d33682;
+  margin-top: 2.2em;
+  margin-bottom: 0.4em;
+}
+
+.btn-cmt {
+  margin: -1em -1em auto -1em;
+  display: block;
+  background: #fef9c3;
+  color: #293084;
+  text-align: center;
+}
+.btn-cmt:hover {
+  background: #7A59AE;
+  color: #ffffff;
+}
+
+.copyright {
+  font-size: 14px;
+  padding: 4em 2em;
+  line-height: 2em;
+  text-align: center;
+  font-family: monospace;
+  color:  #d2d6dc;
+}
+.copyright a {
+  padding: 0;
+  color: #d2d6dc;
+  display: inline;
+}
+.copyright a:hover {
+  background: inherit;
+}
+
+td.linenos .normal { color: inherit; background-color: transparent; padding-left: 5px; padding-right: 5px; }
+span.linenos { color: inherit; background-color: transparent; padding-left: 5px; padding-right: 5px; }
+td.linenos .special { color: #000000; background-color: #ffffc0; padding-left: 5px; padding-right: 5px; }
+span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 5px; padding-right: 5px; }
+body .hll { background-color: #ffffcc }
+body .c { color: #008800; font-style: italic }
+body .err { color: #a61717; background-color: #e3d2d2 }
+body .k { color: #0000ff; font-weight: normal }
+body .ch { color: #008800; font-style: italic }
+body .cm { color: #008800; font-style: italic }
+body .cp { color: #008080 }
+body .cpf { color: #008800; font-style: italic }
+body .c1 {
+    color: #008800; font-style: normal;
+    padding: 4px;
+    display: inline-block;
+    cursor: default;
+    border-left: 6px #F8F1B8 solid;
+    transition: all 250ms ease-out;
+}
+body .cs { color: #008800; font-weight: normal }
+body .gd { color: #000000; background-color: #ffdddd }
+body .ge { font-style: italic }
+body .gr { color: #aa0000 }
+body .gh { color: #999999 }
+body .gi { color: #000000; background-color: #ddffdd }
+body .go { color: #888888 }
+body .gp { color: #555555 }
+body .gs { font-weight: bold }
+body .gu { color: #aaaaaa }
+body .gt { color: #aa0000 }
+body .kc { color: #0000ff; font-weight: normal }
+body .kd { color: #CC00A3; font-weight: normal }
+body .kn { color: #0000ff; font-weight: normal }
+body .kp { color: #0000ff; font-weight: normal }
+body .kr { color: #0000ff; font-weight: normal }
+body .kt { color: #0000ff; font-weight: normal }
+body .m { color: #0000FF }
+body .s { color: #0000FF }
+body .na { color: #FF0000 }
+body .nt { color: #000080; font-weight: bold }
+body .ow { font-weight: bold }
+body .w { color: #bbbbbb }
+body .mb { color: #0000FF }
+body .mf { color: #0000FF }
+body .mh { color: #0000FF }
+body .mi { color: #0000FF }
+body .mo { color: #0000FF }
+body .sa { color: #0000FF }
+body .sb { color: #0000FF }
+body .sc { color: #800080 }
+body .dl { color: #0000FF }
+body .sd { color: #0000FF }
+body .s2 { color: #0000FF }
+body .se { color: #0000FF }
+body .sh { color: #0000FF }
+body .si { color: #0000FF }
+body .sx { color: #0000FF }
+body .sr { color: #0000FF }
+body .s1 { color: #0000FF }
+body .ss { color: #0000FF }
+body .il { color: #0000FF }
