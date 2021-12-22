@@ -46,6 +46,7 @@ func Handler(ctx *gin.Context) {
 	// These are the context roots that this handler understands.
 	// Anything else will result in a yeet to the web root.
 	if strings.Index(url, "/warm-up") != 0 &&
+		strings.Index(url, "/about") != 0 &&
 		strings.Index(url, "/concepts") != 0 &&
 		strings.Index(url, "/pro") != 0 {
 		ctx.Redirect(http.StatusSeeOther, "/")
@@ -55,6 +56,12 @@ func Handler(ctx *gin.Context) {
 	// Disallow directory listing.
 	if url == "/warm-up/" || url == "/warm-up" {
 		ctx.Redirect(http.StatusSeeOther, "/")
+		return
+	}
+
+	// Disallow directory listing.
+	if url == "/about/" || url == "/about" {
+		ctx.Redirect(http.StatusSeeOther, "/about/doc.go.html")
 		return
 	}
 

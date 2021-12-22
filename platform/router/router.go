@@ -101,6 +101,11 @@ func New(auth *authenticator.Authenticator) *gin.Engine {
 
 	// Free routes.
 	router.GET(
+		"/about/*path",
+		middleware.Canonical,
+		questions.Handler,
+	)
+	router.GET(
 		"/concepts/*path",
 		middleware.Canonical,
 		questions.Handler,
