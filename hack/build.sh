@@ -16,10 +16,36 @@ IMAGE=$ECR_IMAGE_FIZZ_WEB
 TAG=$ECR_TAG_FIZZ_WEB
 REPO=$ECR_REPO
 
-# TODO: add more controls here.
+if [ -z "$IMAGE" ]
+then
+   echo "IMAGE is empty!"; exit 1;
+fi
+
+if [ -z "$TAG" ]
+then
+   echo "TAG is empty!"; exit 1;
+fi
+
+if [ -z "$REPO" ]
+then
+   echo "REPO is empty!"; exit 1;
+fi
+
 rm -rf ./usr/local/share
+
 mkdir -p ./usr/local/share
+retVal=$?
+if [ $retVal -ne 0 ]; then
+  echo "Error creating usr/local/share."
+  exit 1
+fi
+
 cp -R /usr/local/share/fizz ./usr/local/share
+retVal=$?
+if [ $retVal -ne 0 ]; then
+  echo "Error copying the generated HTML."
+  exit 1
+fi
 
 echo "»»» building"
 docker build -t "$IMAGE":"$TAG" .

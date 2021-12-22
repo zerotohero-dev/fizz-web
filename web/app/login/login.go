@@ -21,8 +21,7 @@ import (
 	"net/http"
 )
 
-// TODO: is this secure enough. Do we need to “seed” rand()?
-func generateRandomState() (string, error) {
+func generateSecureRandomState() (string, error) {
 	b := make([]byte, 32)
 	_, err := rand.Read(b)
 	if err != nil {
@@ -37,7 +36,7 @@ func generateRandomState() (string, error) {
 // Handler for auth0 login.
 func Handler(auth *authenticator.Authenticator) gin.HandlerFunc {
 	return func(ctx *gin.Context) {
-		state, err := generateRandomState()
+		state, err := generateSecureRandomState()
 		if err != nil {
 			log.Err("Error in authenticator: %s", err.Error())
 			ctx.String(http.StatusInternalServerError, "Authentication error")

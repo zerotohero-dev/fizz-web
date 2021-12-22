@@ -31,10 +31,6 @@ func Handler(ctx *gin.Context) {
 		return
 	}
 
-	// TODO:
-	// abstract apiUrl := "https://api.gumroad.com/v2/products/"  call
-	// into a method and call it here too, along with the `sub` middleware.
-
 	// If user is already subscribed, send them home.
 	_, subscribed := (profile.(map[string]interface{}))["subscribed"]
 	if subscribed {

@@ -38,8 +38,6 @@ func main() {
 
 	rtr := router.New(auth)
 
-	// TODO: these ports and app names should come from env instead.
-
 	log.Info("fizz-web is listening on http://localhost:8888/")
 	if err := http.ListenAndServe("0.0.0.0:8888", rtr); err != nil {
 		log.Info("There was an error with the http server: %v", err)

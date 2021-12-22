@@ -24,9 +24,6 @@ import (
 
 // IsSubscribed checks Gumroad API for a matching subscription for the user.
 func IsSubscribed(ctx *gin.Context) {
-
-	// TODO: use a common struct and validate all of these env vars during app initialization.
-
 	gumroadProductId := os.Getenv("FIZZ_WEB_GUMROAD_PRODUCT_ID")
 	if gumroadProductId == "" {
 		log.Fatal("gumroadProductId not set.")
@@ -72,7 +69,6 @@ func IsSubscribed(ctx *gin.Context) {
 		return
 	}
 
-	// TODO: maybe add an exponential backoff if gumroad api fails.
 	apiUrl := "https://api.gumroad.com/v2/products/" +
 		gumroadProductId +
 		"/subscribers?access_token=" +

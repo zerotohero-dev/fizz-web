@@ -30,8 +30,6 @@ func Handler(ctx *gin.Context) {
 	// If, when we replace those extensions “once”, there is still
 	// `.` in the url, then that is a URL that we don’t recognize.
 	// Yeet the user to the web root.
-	//
-	// TODO: maybe do a regex matcher instead.
 	if strings.Index(
 		strings.Replace(
 			strings.Replace(url, ".go.html", "", 1),

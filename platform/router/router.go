@@ -48,7 +48,6 @@ func New(auth *authenticator.Authenticator) *gin.Engine {
 	c := session.DB("fizz").C("sessions")
 
 	// ~1 month session timeout (in seconds).
-	// TODO: this session timeout should come from env too.
 	store := mongo.NewStore(c, 2592000, true, []byte(os.Getenv("FIZZ_WEB_SESSION_SECRET")))
 	router.Use(sessions.Sessions("auth-session", store))
 

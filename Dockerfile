@@ -52,8 +52,8 @@ COPY --from=builder /app /app
 
 COPY --from=builder /usr/local/share /usr/local/share
 
-# TODO: only copy templates, not go source codes!
-COPY --from=builder /web /web
+# Only copy templates, not go source codes:
+COPY --from=builder /web/template /web/template
 
 # Perform any further action as an unprivileged user:
 USER nobody:nobody

@@ -60,8 +60,7 @@ func New() (*Authenticator, error) {
 		ClientSecret: auth0ClientSecret,
 		RedirectURL:  auth0CallbackUrl,
 		Endpoint:     provider.Endpoint(),
-		// TODO: get these scopes from environment too.
-		Scopes: []string{oidc.ScopeOpenID, "email", "profile"},
+		Scopes:       []string{oidc.ScopeOpenID, "email", "profile"},
 	}
 
 	return &Authenticator{
