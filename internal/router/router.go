@@ -18,8 +18,8 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/globalsign/mgo"
 	"github.com/zerotohero-dev/fizz-logging/pkg/log"
-	"github.com/zerotohero-dev/fizz-web/platform/authenticator"
-	"github.com/zerotohero-dev/fizz-web/platform/middleware"
+	"github.com/zerotohero-dev/fizz-web/internal/auth"
+	"github.com/zerotohero-dev/fizz-web/internal/middleware"
 	"github.com/zerotohero-dev/fizz-web/web/app/callback"
 	"github.com/zerotohero-dev/fizz-web/web/app/healthz"
 	"github.com/zerotohero-dev/fizz-web/web/app/home"
@@ -31,49 +31,49 @@ import (
 	"os"
 )
 
-// New registers the routes and returns the router.
-func New(auth *authenticator.Authenticator) *gin.Engine {
+func New(auth *auth.Authenticator) *gin.Engine {
 	router := gin.Default()
 
-	// To store custom types in our cookies,
-	// we must first register them using gob.Register
 	gob.Register(map[string]interface{}{})
 
-	session, err := mgo.Dial(os.Getenv("FIZZ_WEB_MONGODB_CONNECTION_STRING"))
+	mongoUrl := os.Getenv("FIZZ_WEB_MONGODB_CONNECTION_STRING")
+	session, err := mgo.Dial(mongoUrl)
 	if err != nil {
-		log.Fatal("Problem connecting Mongo:" + err.Error())
+		log.Fatal("Problem connecting Mongo: " + err.Error())
 		return nil
 	}
 
 	c := session.DB("fizz").C("sessions")
+	// 2592000 == ~1month (in seconds)
+	store := mongo.NewStore(
+		c, 2592000, true, []byte(os.Getenv("FIZZ_WEB_SESSION_SECRET")),
+	)
 
-	// ~1 month session timeout (in seconds).
-	store := mongo.NewStore(c, 2592000, true, []byte(os.Getenv("FIZZ_WEB_SESSION_SECRET")))
 	router.Use(sessions.Sessions("auth-session", store))
 
 	router.LoadHTMLGlob("web/template/*")
 
-	// Home.
+	// Home
 	router.GET(
 		"/",
 		middleware.Canonical,
-		home.Handler,
+		home.Handler(),
 	)
 
-	// Ingress health check endpoint.
+	// Liveness probe.
 	router.GET(
 		"/healthz",
-		healthz.Handler,
+		healthz.Handler(),
 	)
 
-	// Generic error handler for Auth0 and Gumroad error redirects.
+	// Gumroad and Auth0 can redirect here upon failure.
 	router.GET(
 		"/error",
 		middleware.Canonical,
-		houston.Handler,
+		houston.Handler(),
 	)
 
-	// User management.
+	// User and identity management (auth0 integration)
 	router.GET(
 		"/auth/callback",
 		middleware.Canonical,
@@ -87,7 +87,7 @@ func New(auth *authenticator.Authenticator) *gin.Engine {
 	router.GET(
 		"/logout",
 		middleware.Canonical,
-		logout.Handler,
+		logout.Handler(),
 	)
 
 	// Gumroad integration.
@@ -95,24 +95,25 @@ func New(auth *authenticator.Authenticator) *gin.Engine {
 		"/subscribe",
 		middleware.Canonical,
 		middleware.IsAuthenticated,
-		subscribe.Handler,
+		// middleware.IsNotSubscribed
+		subscribe.Handler(),
 	)
 
 	// Free routes.
 	router.GET(
 		"/about/*path",
 		middleware.Canonical,
-		questions.Handler,
+		questions.Handler(),
 	)
 	router.GET(
 		"/concepts/*path",
 		middleware.Canonical,
-		questions.Handler,
+		questions.Handler(),
 	)
 	router.GET(
 		"/warm-up/*path",
 		middleware.Canonical,
-		questions.Handler,
+		questions.Handler(),
 	)
 
 	// Premium routes.
@@ -121,7 +122,7 @@ func New(auth *authenticator.Authenticator) *gin.Engine {
 		middleware.Canonical,
 		middleware.IsAuthenticated,
 		middleware.IsSubscribed,
-		questions.Handler,
+		questions.Handler(),
 	)
 
 	return router

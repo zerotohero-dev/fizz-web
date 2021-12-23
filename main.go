@@ -12,34 +12,51 @@
 package main
 
 import (
+	"fmt"
 	"github.com/zerotohero-dev/fizz-logging/pkg/log"
-	"github.com/zerotohero-dev/fizz-web/platform/authenticator"
-	"github.com/zerotohero-dev/fizz-web/platform/router"
+	"github.com/zerotohero-dev/fizz-web/internal/auth"
+	"github.com/zerotohero-dev/fizz-web/internal/router"
 	"net/http"
 	"os"
 )
 
-func sanitize() {
-}
-
-func main() {
+func initLogging() {
+	sanitize := func() {}
 	log.Init(log.InitParams{
 		IsDevEnv:       false,
 		LogDestination: os.Getenv("FIZZ_WEB_PAPERTRAIL_LOG_DESTINATION"),
 		SanitizeFn:     sanitize,
 		AppName:        "fizz-web",
 	})
+}
 
-	auth, err := authenticator.New()
+func initAuth() *auth.Authenticator {
+	a, err := auth.New()
 	if err != nil {
-		log.Fatal("Failed to initialize the authenticator")
-		return
+		log.Fatal(
+			fmt.Sprintf("Failed to initialize the authenticator: %s", err.Error()),
+		)
+		return nil
 	}
 
-	rtr := router.New(auth)
+	return a
+}
 
-	log.Info("fizz-web is listening on http://localhost:8888/")
-	if err := http.ListenAndServe("0.0.0.0:8888", rtr); err != nil {
-		log.Info("There was an error with the http server: %v", err)
+func initRoutes(a *auth.Authenticator) {
+	rtr := router.New(a)
+
+	err := http.ListenAndServe("0.0.0.0:8888", rtr)
+	if err != nil {
+		log.Fatal(
+			fmt.Sprintf("Failed to initialize the server: %s", err.Error()),
+		)
 	}
+
+	log.Info("Started serving at 0.0.0.0:8888")
+}
+
+func main() {
+	initLogging()
+	a := initAuth()
+	initRoutes(a)
 }

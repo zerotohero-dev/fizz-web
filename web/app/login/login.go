@@ -17,7 +17,7 @@ import (
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-gonic/gin"
 	"github.com/zerotohero-dev/fizz-logging/pkg/log"
-	"github.com/zerotohero-dev/fizz-web/platform/authenticator"
+	"github.com/zerotohero-dev/fizz-web/internal/auth"
 	"net/http"
 )
 
@@ -34,19 +34,20 @@ func generateSecureRandomState() (string, error) {
 }
 
 // Handler for auth0 login.
-func Handler(auth *authenticator.Authenticator) gin.HandlerFunc {
+func Handler(auth *auth.Authenticator) gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		state, err := generateSecureRandomState()
 		if err != nil {
 			log.Err("Error in authenticator: %s", err.Error())
-			ctx.String(http.StatusInternalServerError, "Authentication error")
+			ctx.String(http.StatusInternalServerError, "Authentication error.")
 			return
 		}
 
 		// Save the state inside the session.
 		session := sessions.Default(ctx)
 		session.Set("state", state)
-		if err := session.Save(); err != nil {
+		err = session.Save()
+		if err != nil {
 			log.Err("Error in setting session state: %s", err.Error())
 			ctx.String(http.StatusInternalServerError, "Session error")
 			return

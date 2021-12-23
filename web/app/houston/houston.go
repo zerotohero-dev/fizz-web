@@ -12,12 +12,12 @@
 package houston
 
 import (
-	"net/http"
-
 	"github.com/gin-gonic/gin"
+	"net/http"
 )
 
-// Handler for our home page.
-func Handler(ctx *gin.Context) {
-	ctx.HTML(http.StatusMethodNotAllowed, "houston.html", nil)
+func Handler() gin.HandlerFunc {
+	return func(ctx *gin.Context) {
+		ctx.HTML(http.StatusOK, "houston.html", nil)
+	}
 }

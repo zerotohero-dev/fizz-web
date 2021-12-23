@@ -17,64 +17,56 @@ import (
 	"strings"
 )
 
-func Handler(ctx *gin.Context) {
-	url := ctx.Request.URL.String()
+func Handler() gin.HandlerFunc {
+	return func(ctx *gin.Context) {
+		url := ctx.Request.URL.String()
 
-	// Strip the querystring: We don’t need it.
-	// Plus, this will eliminate a whole family of injection attacks.
-	if strings.Index(url, "?") > -1 {
-		url = url[:strings.Index(url, "?")]
+		// Strip the query part.
+		if strings.Index(url, "?") > -1 {
+			url = url[:strings.Index(url, "?")]
+		}
+
+		// Poor man’s directory traversal prevention.
+		if strings.Index(
+			strings.Replace(
+				strings.Replace(url, ".go.html", "", 1),
+				".html", "", 1,
+			),
+			".",
+		) > -1 {
+			ctx.Redirect(http.StatusSeeOther, "/")
+			return
+		}
+
+		// Do not process anything you don’t understand.
+		if strings.Index(url, "/warm-up") != 0 &&
+			strings.Index(url, "/about") != 0 &&
+			strings.Index(url, "/concepts") != 0 &&
+			strings.Index(url, "/pro") != 0 {
+			ctx.Redirect(http.StatusSeeOther, "/")
+			return
+		}
+
+		if url == "/warm-up/" || url == "/warm-up" {
+			ctx.Redirect(http.StatusSeeOther, "/")
+			return
+		}
+
+		if url == "/about/" || url == "/about" {
+			ctx.Redirect(http.StatusSeeOther, "/about/doc.go.html")
+			return
+		}
+
+		if url == "/about/" || url == "/about" {
+			ctx.Redirect(http.StatusSeeOther, "/about/doc.go.html")
+			return
+		}
+
+		if url == "/pro/" || url == "/pro" {
+			ctx.Redirect(http.StatusSeeOther, "/")
+			return
+		}
+
+		ctx.File("/usr/local/share/fizz/dist" + url)
 	}
-
-	// Only extensions we allow are `.go.html` and `.html`.
-	// If, when we replace those extensions “once”, there is still
-	// `.` in the url, then that is a URL that we don’t recognize.
-	// Yeet the user to the web root.
-	if strings.Index(
-		strings.Replace(
-			strings.Replace(url, ".go.html", "", 1),
-			".html", "", 1,
-		),
-		".",
-	) > -1 {
-		ctx.Redirect(http.StatusSeeOther, "/")
-		return
-	}
-
-	// These are the context roots that this handler understands.
-	// Anything else will result in a yeet to the web root.
-	if strings.Index(url, "/warm-up") != 0 &&
-		strings.Index(url, "/about") != 0 &&
-		strings.Index(url, "/concepts") != 0 &&
-		strings.Index(url, "/pro") != 0 {
-		ctx.Redirect(http.StatusSeeOther, "/")
-		return
-	}
-
-	// Disallow directory listing.
-	if url == "/warm-up/" || url == "/warm-up" {
-		ctx.Redirect(http.StatusSeeOther, "/")
-		return
-	}
-
-	// Disallow directory listing.
-	if url == "/about/" || url == "/about" {
-		ctx.Redirect(http.StatusSeeOther, "/about/doc.go.html")
-		return
-	}
-
-	// Disallow directory listing.
-	if url == "/concepts/" || url == "/concepts" {
-		ctx.Redirect(http.StatusSeeOther, "/concepts/doc.go.html")
-		return
-	}
-
-	// Disallow directory listing.
-	if url == "/pro/" || url == "/pro" {
-		ctx.Redirect(http.StatusSeeOther, "/")
-		return
-	}
-
-	// Serve the file.
-	ctx.File("/usr/local/share/fizz/dist" + url)
 }

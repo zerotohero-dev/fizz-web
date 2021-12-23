@@ -12,12 +12,12 @@
 package healthz
 
 import (
-	"net/http"
-
 	"github.com/gin-gonic/gin"
+	"net/http"
 )
 
-// Handler for health check.
-func Handler(ctx *gin.Context) {
-	ctx.String(http.StatusOK, "OK")
+func Handler() gin.HandlerFunc {
+	return func(ctx *gin.Context) {
+		ctx.String(http.StatusOK, "OK")
+	}
 }

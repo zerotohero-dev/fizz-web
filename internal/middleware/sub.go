@@ -22,7 +22,6 @@ import (
 	"os"
 )
 
-// IsSubscribed checks Gumroad API for a matching subscription for the user.
 func IsSubscribed(ctx *gin.Context) {
 	gumroadProductId := os.Getenv("FIZZ_WEB_GUMROAD_PRODUCT_ID")
 	if gumroadProductId == "" {
@@ -50,7 +49,6 @@ func IsSubscribed(ctx *gin.Context) {
 		return
 	}
 
-	// If user is already subscribed, send them to where they need to go.
 	_, subscribed := profile["subscribed"]
 	if subscribed {
 		ctx.Next()
@@ -58,13 +56,8 @@ func IsSubscribed(ctx *gin.Context) {
 	}
 
 	email, ok := profile["email"].(string)
-	if !ok {
+	if !ok || email == "" {
 		log.Err("auth0 not able to fetch profile email")
-		ctx.Next()
-		return
-	}
-	if email == "" {
-		log.Err("auth0 profile email appears to be blank")
 		ctx.Next()
 		return
 	}
@@ -77,20 +70,19 @@ func IsSubscribed(ctx *gin.Context) {
 
 	resp, err := http.Get(apiUrl)
 	if err != nil {
-		log.Err("Gumroad API failure: %s", err.Error())
+		log.Err("gumroad api failure: %s", err.Error())
 		ctx.Next()
 		return
 	}
 
 	body, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
-		log.Err("Gumroad API parse failure: %s", err.Error())
+		log.Err("gumroad api failure: %s", err.Error())
 		ctx.Next()
 		return
 	}
 
 	var gr GumroadResponse
-
 	err = json.Unmarshal(body, &gr)
 	if err != nil {
 		log.Err("Gumroad unmarshal error: %s", err.Error())
@@ -98,23 +90,26 @@ func IsSubscribed(ctx *gin.Context) {
 		return
 	}
 
-	// If Gumroad does not succeed, it is not the user’s problem.
-	// Just log the error, and let the user in this time.
 	if !gr.Success {
-		log.Err("Gumroad unsuccessful response")
+		log.Err("Gumroad response failure: %s", err.Error())
 		ctx.Next()
 		return
 	}
 
-	// No subscriber found. Let the user subscribe.
 	if len(gr.Subscribers) == 0 {
 		ctx.Redirect(http.StatusSeeOther, "/subscribe")
 		return
 	}
 
-	// Mark user as “subscribed” so that we don’t do redundant Gumroad API
-	// lookups.
 	profile["subscribed"] = true
-	sessions.Default(ctx).Set("profile", profile)
+	session := sessions.Default(ctx)
+	session.Set("profile", profile)
+	err = session.Save()
+	if err != nil {
+		log.Err("Failed to save session: %s", err.Error())
+		ctx.Next()
+		return
+	}
+
 	ctx.Next()
 }

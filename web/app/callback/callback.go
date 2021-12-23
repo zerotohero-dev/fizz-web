@@ -15,12 +15,12 @@ import (
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-gonic/gin"
 	"github.com/zerotohero-dev/fizz-logging/pkg/log"
-	"github.com/zerotohero-dev/fizz-web/platform/authenticator"
+	"github.com/zerotohero-dev/fizz-web/internal/auth"
 	"net/http"
 )
 
 // Handler for auth0 callback.
-func Handler(auth *authenticator.Authenticator) gin.HandlerFunc {
+func Handler(auth *auth.Authenticator) gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		session := sessions.Default(ctx)
 		if ctx.Query("state") != session.Get("state") {
@@ -31,18 +31,22 @@ func Handler(auth *authenticator.Authenticator) gin.HandlerFunc {
 		// Exchange an authorization code for a token.
 		token, err := auth.Exchange(ctx.Request.Context(), ctx.Query("code"))
 		if err != nil {
-			ctx.String(http.StatusUnauthorized, "Failed to convert an authorization code into a token.")
+			ctx.String(
+				http.StatusUnauthorized,
+				"Failed to convert an authorization code into a token.",
+			)
 			return
 		}
 
-		idToken, err := auth.VerifyIDToken(ctx.Request.Context(), token)
+		idToken, err := auth.VerifyIdToken(ctx.Request.Context(), token)
 		if err != nil {
 			ctx.String(http.StatusInternalServerError, "Failed to verify ID Token.")
 			return
 		}
 
 		var profile map[string]interface{}
-		if err := idToken.Claims(&profile); err != nil {
+		err = idToken.Claims(&profile)
+		if err != nil {
 			log.Err("Error claiming profile: %s", err.Error())
 			ctx.String(http.StatusInternalServerError, "Failed to claim profile.")
 			return
@@ -51,7 +55,8 @@ func Handler(auth *authenticator.Authenticator) gin.HandlerFunc {
 		session.Set("access_token", token.AccessToken)
 		session.Set("profile", profile)
 
-		if err := session.Save(); err != nil {
+		err = session.Save()
+		if err != nil {
 			log.Err("Failed to save session: %s", err.Error())
 			ctx.String(http.StatusInternalServerError, "Failed to save session.")
 			return
