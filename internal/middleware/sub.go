@@ -51,7 +51,7 @@ func IsNotSubscribed(ctx *gin.Context) {
 
 	_, subscribed := profile["subscribed"]
 	if subscribed {
-		ctx.Next()
+		ctx.Redirect(http.StatusSeeOther, "/")
 		return
 	}
 
@@ -111,8 +111,6 @@ func IsNotSubscribed(ctx *gin.Context) {
 	err = session.Save()
 	if err != nil {
 		log.Err("Failed to save session: %s", err.Error())
-		ctx.Next()
-		return
 	}
 
 	ctx.Redirect(http.StatusSeeOther, "/")
