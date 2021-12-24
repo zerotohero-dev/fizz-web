@@ -26,7 +26,10 @@ func Handler() gin.HandlerFunc {
 			url = url[:strings.Index(url, "?")]
 		}
 
-		// Poor man’s directory traversal prevention.
+		// Poor man’s directory traversal prevention:
+		// Replace all `go.html` and `.html`. If there are still
+		// `.`s remaining after the replacement, then it is a malformed
+		// url.
 		if strings.Index(
 			strings.Replace(
 				strings.Replace(url, ".go.html", "", 1),
@@ -63,6 +66,13 @@ func Handler() gin.HandlerFunc {
 		}
 
 		if url == "/pro/" || url == "/pro" {
+			ctx.Redirect(http.StatusSeeOther, "/")
+			return
+		}
+
+		// All the questions and source code end with .go.html
+		// Anything else is likely some mangled url.
+		if !strings.HasSuffix(url, ".go.html") {
 			ctx.Redirect(http.StatusSeeOther, "/")
 			return
 		}
