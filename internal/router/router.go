@@ -95,7 +95,7 @@ func New(auth *auth.Authenticator) *gin.Engine {
 		"/subscribe",
 		middleware.Canonical,
 		middleware.IsAuthenticated,
-		// middleware.IsNotSubscribed
+		middleware.IsNotSubscribed,
 		subscribe.Handler(),
 	)
 

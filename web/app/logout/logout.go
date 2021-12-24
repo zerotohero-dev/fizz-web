@@ -34,6 +34,9 @@ func Handler() gin.HandlerFunc {
 		}
 
 		returnTo, err := url.Parse(scheme + "://" + ctx.Request.Host)
+		if returnTo.String() == "http://fizzbuzz.pro" {
+			returnTo, err = url.Parse("https://fizzbuzz.pro")
+		}
 		if err != nil {
 			log.Err("Internal server error: %s", err.Error())
 			ctx.String(http.StatusInternalServerError, "Internal server error.")
@@ -45,6 +48,8 @@ func Handler() gin.HandlerFunc {
 		parameters.Add("client_id", os.Getenv("FIZZ_WEB_AUTH0_CLIENT_ID"))
 		logoutUrl.RawQuery = parameters.Encode()
 
-		ctx.Redirect(http.StatusTemporaryRedirect, logoutUrl.String())
+		toRedirect := logoutUrl.String()
+
+		ctx.Redirect(http.StatusTemporaryRedirect, toRedirect)
 	}
 }
