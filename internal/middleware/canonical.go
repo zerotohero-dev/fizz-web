@@ -14,6 +14,7 @@ package middleware
 import (
 	"github.com/gin-gonic/gin"
 	"net/http"
+	"path"
 	"strings"
 )
 
@@ -23,8 +24,7 @@ import (
 func Canonical(ctx *gin.Context) {
 	if strings.Index(ctx.Request.Host, "www.") != -1 {
 		ctx.Redirect(http.StatusSeeOther,
-			strings.Replace(ctx.Request.Host, "www.", "", 1)+
-				"/"+ctx.Request.RequestURI,
+			path.Join("https://fizzbuzz.pro", ctx.Request.RequestURI),
 		)
 		return
 	}
