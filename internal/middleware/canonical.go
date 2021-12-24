@@ -24,7 +24,7 @@ import (
 func Canonical(ctx *gin.Context) {
 	if strings.Index(ctx.Request.Host, "www.") != -1 {
 		ctx.Redirect(http.StatusSeeOther,
-			path.Join("https://fizzbuzz.pro", ctx.Request.RequestURI),
+			"https://"+path.Join("fizzbuzz.pro", ctx.Request.RequestURI),
 		)
 		return
 	}
