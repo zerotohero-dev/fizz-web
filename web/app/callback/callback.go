@@ -15,12 +15,12 @@ import (
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-gonic/gin"
 	"github.com/zerotohero-dev/fizz-logging/pkg/log"
-	"github.com/zerotohero-dev/fizz-web/internal/auth"
+	"github.com/zerotohero-dev/fizz-web/internal/authenticator"
 	"net/http"
 )
 
 // Handler for auth0 callback.
-func Handler(auth *auth.Authenticator) gin.HandlerFunc {
+func Handler(auth *authenticator.Authenticator) gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		session := sessions.Default(ctx)
 		if ctx.Query("state") != session.Get("state") {

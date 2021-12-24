@@ -18,7 +18,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/globalsign/mgo"
 	"github.com/zerotohero-dev/fizz-logging/pkg/log"
-	"github.com/zerotohero-dev/fizz-web/internal/auth"
+	"github.com/zerotohero-dev/fizz-web/internal/authenticator"
 	"github.com/zerotohero-dev/fizz-web/internal/middleware"
 	"github.com/zerotohero-dev/fizz-web/web/app/callback"
 	"github.com/zerotohero-dev/fizz-web/web/app/healthz"
@@ -31,9 +31,12 @@ import (
 	"os"
 )
 
-func New(auth *auth.Authenticator) *gin.Engine {
+// New registers the routes and returns the router.
+func New(auth *authenticator.Authenticator) *gin.Engine {
 	router := gin.Default()
 
+	// To store custom types in our cookies,
+	// we must first register them using gob.Register
 	gob.Register(map[string]interface{}{})
 
 	mongoUrl := os.Getenv("FIZZ_WEB_MONGODB_CONNECTION_STRING")
@@ -53,7 +56,7 @@ func New(auth *auth.Authenticator) *gin.Engine {
 
 	router.LoadHTMLGlob("web/template/*")
 
-	// Home
+	// Home.
 	router.GET(
 		"/",
 		middleware.Canonical,

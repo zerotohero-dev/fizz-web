@@ -21,12 +21,12 @@ func Handler() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		url := ctx.Request.URL.String()
 
-		// Strip the query part.
+		// Strip the querystring: We don’t need it.
 		if strings.Index(url, "?") > -1 {
 			url = url[:strings.Index(url, "?")]
 		}
 
-		// Poor man’s directory traversal prevention:
+		// Only extensions we allow are `.go.html` and `.html`.
 		// Replace all `go.html` and `.html`. If there are still
 		// `.`s remaining after the replacement, then it is a malformed
 		// url.
@@ -50,21 +50,25 @@ func Handler() gin.HandlerFunc {
 			return
 		}
 
+		// Disallow directory listing.
 		if url == "/warm-up/" || url == "/warm-up" {
 			ctx.Redirect(http.StatusSeeOther, "/")
 			return
 		}
 
+		// Disallow directory listing.
 		if url == "/about/" || url == "/about" {
 			ctx.Redirect(http.StatusSeeOther, "/about/doc.go.html")
 			return
 		}
 
-		if url == "/about/" || url == "/about" {
-			ctx.Redirect(http.StatusSeeOther, "/about/doc.go.html")
+		// Disallow directory listing.
+		if url == "/concepts/" || url == "/concepts" {
+			ctx.Redirect(http.StatusSeeOther, "/concepts/doc.go.html")
 			return
 		}
 
+		// Disallow directory listing.
 		if url == "/pro/" || url == "/pro" {
 			ctx.Redirect(http.StatusSeeOther, "/")
 			return

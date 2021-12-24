@@ -9,7 +9,9 @@
  *  (& )`   (,((,((;( ))\,
  */
 
-package auth
+package authenticator
+
+// authenticator is the Auth0 integration layer.
 
 import (
 	"context"
@@ -19,6 +21,7 @@ import (
 	"os"
 )
 
+// Authenticator is used to authenticate our users.
 type Authenticator struct {
 	*oidc.Provider
 	oauth2.Config
@@ -38,6 +41,7 @@ func (a *Authenticator) VerifyIdToken(
 	return a.Verifier(oidcConfig).Verify(ctx, rawIdToken)
 }
 
+// New instantiates the *Authenticator.
 func New() (*Authenticator, error) {
 	auth0Domain := os.Getenv("FIZZ_WEB_AUTH0_DOMAIN")
 	if auth0Domain == "" {
@@ -57,7 +61,8 @@ func New() (*Authenticator, error) {
 	}
 
 	provider, err := oidc.NewProvider(
-		context.Background(), "https://"+auth0Domain+"/",
+		context.Background(),
+		"https://"+auth0Domain+"/",
 	)
 	if err != nil {
 		return nil, err
@@ -66,8 +71,9 @@ func New() (*Authenticator, error) {
 	conf := oauth2.Config{
 		ClientID:     auth0ClientId,
 		ClientSecret: auth0ClientSecret,
+		RedirectURL:  auth0CallbackUrl,
 		Endpoint:     provider.Endpoint(),
-		Scopes:       []string{oidc.ScopeOpenID, "email", "profile"},
+		Scopes: []string{oidc.ScopeOpenID, "email", "profile"},
 	}
 
 	return &Authenticator{

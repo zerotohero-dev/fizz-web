@@ -58,7 +58,7 @@ COPY --from=builder /web/template /web/template
 # Perform any further action as an unprivileged user:
 USER nobody:nobody
 
-# Start listening (should match FIZZ_CRYPTO_SVC_PORT):
+# Start listening (should match FIZZ_WEB_SVC_PORT):
 EXPOSE 8888/tcp
 
 # Run the compiled binary:

@@ -19,6 +19,7 @@ import (
 	"os"
 )
 
+// Handler for our logout.
 func Handler() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		logoutUrl, err := url.Parse("https://" + os.Getenv("FIZZ_WEB_AUTH0_DOMAIN") + "/v2/logout")

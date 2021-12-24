@@ -22,17 +22,23 @@ func Handler() gin.HandlerFunc {
 		session := sessions.Default(ctx)
 		profile := session.Get("profile")
 
+		// You need to be logged in to subscribe.
+		// Normally middleware.isAuthenticated already takes care of this.
+		// This check here is just defensive coding.
 		if profile == nil {
 			ctx.Redirect(http.StatusSeeOther, "/login")
 			return
 		}
 
+		// If user is already subscribed, send them home.
 		_, subscribed := (profile.(map[string]interface{}))["subscribed"]
 		if subscribed {
 			ctx.Redirect(http.StatusSeeOther, "/")
 			return
 		}
 
+		// (based on the session state) The user does not appear to be subscribed;
+		// render the subscription form.
 		ctx.HTML(http.StatusOK, "subscribe.html", profile)
 	}
 }
