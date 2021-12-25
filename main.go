@@ -15,6 +15,6 @@ import "github.com/zerotohero-dev/fizz-web/internal/app"
 
 func main() {
 	app.InitLogging()
-	a := app.InitAuth()
-	app.InitRoutes(a)
+	auth := app.InitAuth()
+	app.InitRoutes(auth)
 }

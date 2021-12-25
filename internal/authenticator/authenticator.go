@@ -28,10 +28,11 @@ type Authenticator struct {
 }
 
 func (a *Authenticator) VerifyIdToken(
-	ctx context.Context, token *oauth2.Token) (*oidc.IDToken, error) {
+	ctx context.Context, token *oauth2.Token,
+) (*oidc.IDToken, error) {
 	rawIdToken, ok := token.Extra("id_token").(string)
 	if !ok {
-		return nil, errors.New("no id_token field in oauth2 token")
+		return nil, errors.New("no id_token field in the oauth2 token")
 	}
 
 	oidcConfig := &oidc.Config{
@@ -61,8 +62,7 @@ func New() (*Authenticator, error) {
 	}
 
 	provider, err := oidc.NewProvider(
-		context.Background(),
-		"https://"+auth0Domain+"/",
+		context.Background(), "https://"+auth0Domain+"/",
 	)
 	if err != nil {
 		return nil, err
@@ -71,9 +71,9 @@ func New() (*Authenticator, error) {
 	conf := oauth2.Config{
 		ClientID:     auth0ClientId,
 		ClientSecret: auth0ClientSecret,
-		RedirectURL:  auth0CallbackUrl,
 		Endpoint:     provider.Endpoint(),
-		Scopes: []string{oidc.ScopeOpenID, "email", "profile"},
+		RedirectURL:  auth0CallbackUrl,
+		Scopes:       []string{oidc.ScopeOpenID, "email", "profile"},
 	}
 
 	return &Authenticator{

@@ -51,6 +51,7 @@ func IsNotSubscribed(ctx *gin.Context) {
 
 	_, subscribed := profile["subscribed"]
 	if subscribed {
+		// Already subscribed, no need to show the subscription page again.
 		ctx.Redirect(http.StatusSeeOther, "/")
 		return
 	}
@@ -58,6 +59,8 @@ func IsNotSubscribed(ctx *gin.Context) {
 	email, ok := profile["email"].(string)
 	if !ok || email == "" {
 		log.Err("auth0 not able to fetch profile email")
+		// Unable to fetch email; still allow user to consume the content:
+		// We can manually fix things later.
 		ctx.Next()
 		return
 	}
@@ -70,6 +73,8 @@ func IsNotSubscribed(ctx *gin.Context) {
 
 	resp, err := http.Get(apiUrl)
 	if err != nil {
+		// Gumroad API failure is not the user’s problem.
+		// Let them consume the content until we figure out what’s wrong.
 		log.Err("gumroad api failure: %s", err.Error())
 		ctx.Next()
 		return
@@ -77,6 +82,8 @@ func IsNotSubscribed(ctx *gin.Context) {
 
 	body, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
+		// Again, Gumroad API failure is not the user’s problem.
+		// Be optimistic, and allow access to content until things are sorted out.
 		log.Err("gumroad api failure: %s", err.Error())
 		ctx.Next()
 		return
@@ -85,26 +92,27 @@ func IsNotSubscribed(ctx *gin.Context) {
 	var gr GumroadResponse
 	err = json.Unmarshal(body, &gr)
 	if err != nil {
+		// Same. Your integration error, your problem: Don’t punish the users for that.
 		log.Err("Gumroad unmarshal error: %s", err.Error())
 		ctx.Next()
 		return
 	}
 
 	if !gr.Success {
+		// Allow the user to proceed regardless.
 		log.Err("Gumroad response failure: %s", err.Error())
 		ctx.Next()
 		return
 	}
 
-	// User is not subscribed; let them proceed.
+	// We are certain that the user is not subscribed.
+	// Allow to render the subscription form.
 	if len(gr.Subscribers) == 0 {
 		ctx.Next()
 		return
 	}
 
-	// If the flow reaches here, then the user is subscribed,
-	// redirect them home.
-
+	// User is subscribed, but profile is stale; update it.
 	profile["subscribed"] = true
 	session := sessions.Default(ctx)
 	session.Set("profile", profile)
@@ -113,6 +121,7 @@ func IsNotSubscribed(ctx *gin.Context) {
 		log.Err("Failed to save session: %s", err.Error())
 	}
 
+	// If subscribed, yeet the user to the default page.
 	ctx.Redirect(http.StatusSeeOther, "/")
 }
 
@@ -152,6 +161,8 @@ func IsSubscribed(ctx *gin.Context) {
 	email, ok := profile["email"].(string)
 	if !ok || email == "" {
 		log.Err("auth0 not able to fetch profile email")
+		// Unable to fetch email; still allow user to consume the content:
+		// We can manually fix things later.
 		ctx.Next()
 		return
 	}
@@ -164,6 +175,8 @@ func IsSubscribed(ctx *gin.Context) {
 
 	resp, err := http.Get(apiUrl)
 	if err != nil {
+		// Gumroad API failure is not the user’s problem.
+		// Let them consume the content until we figure out what’s wrong.
 		log.Err("gumroad api failure: %s", err.Error())
 		ctx.Next()
 		return
@@ -171,6 +184,8 @@ func IsSubscribed(ctx *gin.Context) {
 
 	body, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
+		// Again, Gumroad API failure is not the user’s problem.
+		// Be optimistic, and allow access to content until things are sorted out.
 		log.Err("gumroad api failure: %s", err.Error())
 		ctx.Next()
 		return
@@ -179,17 +194,21 @@ func IsSubscribed(ctx *gin.Context) {
 	var gr GumroadResponse
 	err = json.Unmarshal(body, &gr)
 	if err != nil {
+		// Same. Your integration error, your problem: Don’t punish the users for that.
 		log.Err("Gumroad unmarshal error: %s", err.Error())
 		ctx.Next()
 		return
 	}
 
 	if !gr.Success {
+		// Allow the user to proceed regardless.
 		log.Err("Gumroad response failure: %s", err.Error())
 		ctx.Next()
 		return
 	}
 
+	// If no subscribers, then we are mostly certain that the user is not
+	// subscribed yet. Redirect them to the subscription page.
 	if len(gr.Subscribers) == 0 {
 		ctx.Redirect(http.StatusSeeOther, "/subscribe")
 		return
@@ -201,9 +220,6 @@ func IsSubscribed(ctx *gin.Context) {
 	err = session.Save()
 	if err != nil {
 		log.Err("Failed to save session: %s", err.Error())
-		ctx.Next()
-		return
 	}
-
 	ctx.Next()
 }

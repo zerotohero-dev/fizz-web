@@ -28,7 +28,7 @@ func Handler(auth *authenticator.Authenticator) gin.HandlerFunc {
 			return
 		}
 
-		// Exchange an authorization code for a token.
+		// Exchange authorization code for a token.
 		token, err := auth.Exchange(ctx.Request.Context(), ctx.Query("code"))
 		if err != nil {
 			ctx.String(
@@ -38,12 +38,14 @@ func Handler(auth *authenticator.Authenticator) gin.HandlerFunc {
 			return
 		}
 
+		// verify token, an get id token.
 		idToken, err := auth.VerifyIdToken(ctx.Request.Context(), token)
 		if err != nil {
 			ctx.String(http.StatusInternalServerError, "Failed to verify ID Token.")
 			return
 		}
 
+		// Parse id token’s claims into profile.
 		var profile map[string]interface{}
 		err = idToken.Claims(&profile)
 		if err != nil {
@@ -54,7 +56,6 @@ func Handler(auth *authenticator.Authenticator) gin.HandlerFunc {
 
 		session.Set("access_token", token.AccessToken)
 		session.Set("profile", profile)
-
 		err = session.Save()
 		if err != nil {
 			log.Err("Failed to save session: %s", err.Error())

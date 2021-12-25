@@ -19,15 +19,15 @@ import (
 	"github.com/globalsign/mgo"
 	"github.com/zerotohero-dev/fizz-logging/pkg/log"
 	"github.com/zerotohero-dev/fizz-web/internal/authenticator"
+	"github.com/zerotohero-dev/fizz-web/internal/handler/callback"
+	"github.com/zerotohero-dev/fizz-web/internal/handler/healthz"
+	"github.com/zerotohero-dev/fizz-web/internal/handler/home"
+	"github.com/zerotohero-dev/fizz-web/internal/handler/houston"
+	"github.com/zerotohero-dev/fizz-web/internal/handler/login"
+	"github.com/zerotohero-dev/fizz-web/internal/handler/logout"
+	"github.com/zerotohero-dev/fizz-web/internal/handler/questions"
+	"github.com/zerotohero-dev/fizz-web/internal/handler/subscribe"
 	"github.com/zerotohero-dev/fizz-web/internal/middleware"
-	"github.com/zerotohero-dev/fizz-web/web/app/callback"
-	"github.com/zerotohero-dev/fizz-web/web/app/healthz"
-	"github.com/zerotohero-dev/fizz-web/web/app/home"
-	"github.com/zerotohero-dev/fizz-web/web/app/houston"
-	"github.com/zerotohero-dev/fizz-web/web/app/login"
-	"github.com/zerotohero-dev/fizz-web/web/app/logout"
-	"github.com/zerotohero-dev/fizz-web/web/app/questions"
-	"github.com/zerotohero-dev/fizz-web/web/app/subscribe"
 	"os"
 )
 
@@ -35,8 +35,8 @@ import (
 func New(auth *authenticator.Authenticator) *gin.Engine {
 	router := gin.Default()
 
-	// To store custom types in our cookies,
-	// we must first register them using gob.Register
+	// To store custom types in our session, we need to first register them
+	// using gob.Register().
 	gob.Register(map[string]interface{}{})
 
 	mongoUrl := os.Getenv("FIZZ_WEB_MONGODB_CONNECTION_STRING")
@@ -63,12 +63,6 @@ func New(auth *authenticator.Authenticator) *gin.Engine {
 		home.Handler(),
 	)
 
-	// Liveness probe.
-	router.GET(
-		"/healthz",
-		healthz.Handler(),
-	)
-
 	// Gumroad and Auth0 can redirect here upon failure.
 	router.GET(
 		"/error",
@@ -76,7 +70,18 @@ func New(auth *authenticator.Authenticator) *gin.Engine {
 		houston.Handler(),
 	)
 
-	// User and identity management (auth0 integration)
+	// Gumroad integration.
+	router.GET(
+		"/subscribe",
+		middleware.Canonical,
+		middleware.IsAuthenticated,
+		middleware.IsNotSubscribed,
+		subscribe.Handler(),
+	)
+	// Liveness probe.
+	router.GET("/healthz", healthz.Handler())
+
+	// Auth0
 	router.GET(
 		"/auth/callback",
 		middleware.Canonical,
@@ -93,16 +98,7 @@ func New(auth *authenticator.Authenticator) *gin.Engine {
 		logout.Handler(),
 	)
 
-	// Gumroad integration.
-	router.GET(
-		"/subscribe",
-		middleware.Canonical,
-		middleware.IsAuthenticated,
-		middleware.IsNotSubscribed,
-		subscribe.Handler(),
-	)
-
-	// Free routes.
+	// Free
 	router.GET(
 		"/about/*path",
 		middleware.Canonical,

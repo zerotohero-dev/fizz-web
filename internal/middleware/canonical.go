@@ -23,7 +23,8 @@ import (
 // This fixes some Oauth0 and Gumroad redirection edge cases.
 func Canonical(ctx *gin.Context) {
 	if strings.Index(ctx.Request.Host, "www.") != -1 {
-		ctx.Redirect(http.StatusSeeOther,
+		ctx.Redirect(
+			http.StatusSeeOther,
 			"https://"+path.Join("fizzbuzz.pro", ctx.Request.RequestURI),
 		)
 		return

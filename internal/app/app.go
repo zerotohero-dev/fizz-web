@@ -35,15 +35,15 @@ func InitAuth() *authenticator.Authenticator {
 		log.Fatal("Failed to initialize the authenticator")
 		return nil
 	}
-
 	return auth
 }
 
-func InitRoutes(a *authenticator.Authenticator) {
-	rtr := router.New(a)
-
-	log.Info("fizz-web is listening on http://localhost:8888/")
-	if err := http.ListenAndServe("0.0.0.0:8888", rtr); err != nil {
-		log.Info("There was an error with the http server: %v", err)
+func InitRoutes(auth *authenticator.Authenticator) {
+	rtr := router.New(auth)
+	err := http.ListenAndServe("0.0.0.0:8888", rtr)
+	if err != nil {
+		log.Fatal("There was an error with the http server: " + err.Error())
+		return
 	}
+	log.Info("fizz-web is listening on port 8888")
 }

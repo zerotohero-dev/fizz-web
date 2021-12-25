@@ -14,6 +14,7 @@ package questions
 import (
 	"github.com/gin-gonic/gin"
 	"net/http"
+	"path"
 	"strings"
 )
 
@@ -27,9 +28,8 @@ func Handler() gin.HandlerFunc {
 		}
 
 		// Only extensions we allow are `.go.html` and `.html`.
-		// Replace all `go.html` and `.html`. If there are still
-		// `.`s remaining after the replacement, then it is a malformed
-		// url.
+		// Replace all `go.html` and `.html`. If there are still `.`s
+		// remaining after the replacement, then it is a malformed url.
 		if strings.Index(
 			strings.Replace(
 				strings.Replace(url, ".go.html", "", 1),
@@ -58,19 +58,19 @@ func Handler() gin.HandlerFunc {
 
 		// Disallow directory listing.
 		if url == "/about/" || url == "/about" {
-			ctx.Redirect(http.StatusSeeOther, "/about/doc.go.html")
+			ctx.Redirect(http.StatusPermanentRedirect, "/about/doc.go.html")
 			return
 		}
 
 		// Disallow directory listing.
 		if url == "/concepts/" || url == "/concepts" {
-			ctx.Redirect(http.StatusSeeOther, "/concepts/doc.go.html")
+			ctx.Redirect(http.StatusPermanentRedirect, "/concepts/doc.go.html")
 			return
 		}
 
 		// Disallow directory listing.
 		if url == "/pro/" || url == "/pro" {
-			ctx.Redirect(http.StatusSeeOther, "/")
+			ctx.Redirect(http.StatusTemporaryRedirect, "/")
 			return
 		}
 
@@ -81,6 +81,6 @@ func Handler() gin.HandlerFunc {
 			return
 		}
 
-		ctx.File("/usr/local/share/fizz/dist" + url)
+		ctx.File(path.Join("/usr/local/share/fizz/dist", url))
 	}
 }

@@ -43,7 +43,8 @@ func Handler(auth *authenticator.Authenticator) gin.HandlerFunc {
 			return
 		}
 
-		// Save the state inside the session.
+		// Save the state into the session, to compare it when we receive it
+		// on the callback endpoint.
 		session := sessions.Default(ctx)
 		session.Set("state", state)
 		err = session.Save()
@@ -53,6 +54,7 @@ func Handler(auth *authenticator.Authenticator) gin.HandlerFunc {
 			return
 		}
 
+		// Redirect to provider login:
 		ctx.Redirect(http.StatusTemporaryRedirect, auth.AuthCodeURL(state))
 	}
 }

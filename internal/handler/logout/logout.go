@@ -35,13 +35,16 @@ func Handler() gin.HandlerFunc {
 		}
 
 		returnTo, err := url.Parse(scheme + "://" + ctx.Request.Host)
-		if returnTo.String() == "http://fizzbuzz.pro" {
-			returnTo, err = url.Parse("https://fizzbuzz.pro")
-		}
 		if err != nil {
 			log.Err("Internal server error: %s", err.Error())
 			ctx.String(http.StatusInternalServerError, "Internal server error.")
 			return
+		}
+		// Due to TLS termination at ALB, ctx.Request.TLS is `false` for production.
+		// Check the host string instead.
+		if returnTo.String() == "http://fizzbuzz.pro" ||
+			returnTo.String() == "http://www.fizzbuzz.pro" {
+			returnTo, err = url.Parse("https://fizzbuzz.pro")
 		}
 
 		parameters := url.Values{}
@@ -50,7 +53,6 @@ func Handler() gin.HandlerFunc {
 		logoutUrl.RawQuery = parameters.Encode()
 
 		toRedirect := logoutUrl.String()
-
 		ctx.Redirect(http.StatusTemporaryRedirect, toRedirect)
 	}
 }

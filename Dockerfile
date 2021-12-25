@@ -50,6 +50,7 @@ COPY --from=builder /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/
 # Import the compiled executable from the build container:
 COPY --from=builder /app /app
 
+# Copy the generated HTML files:
 COPY --from=builder /usr/local/share /usr/local/share
 
 # Only copy templates, not go source codes:
