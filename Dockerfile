@@ -36,7 +36,7 @@ COPY usr/local/share/fizz /usr/local/share/fizz
 COPY web /web
 
 # Build the executable to `/app`. Mark the build as statically linked:
-RUN CGO_ENABLED=0 go build -installsuffix 'static' -o /app ./main.go
+RUN CGO_ENABLED=0 go build -installsuffix 'static' -o /app ./cmd/main.go
 
 # This is the final “minimal” container image:
 FROM scratch AS final

@@ -28,16 +28,13 @@ func Handler() gin.HandlerFunc {
 		}
 
 		// Only extensions we allow are `.go.html` and `.html`.
-		// Replace all `go.html` and `.html`. If there are still `.`s
+		// Replace all `go.html`. If there are still `.`s
 		// remaining after the replacement, then it is a malformed url.
 		if strings.Index(
-			strings.Replace(
-				strings.Replace(url, ".go.html", "", 1),
-				".html", "", 1,
-			),
+			strings.Replace(url, ".go.html", "", 1),
 			".",
 		) > -1 {
-			ctx.Redirect(http.StatusSeeOther, "/")
+			ctx.Redirect(http.StatusTemporaryRedirect, "/")
 			return
 		}
 
@@ -46,13 +43,13 @@ func Handler() gin.HandlerFunc {
 			strings.Index(url, "/about") != 0 &&
 			strings.Index(url, "/concepts") != 0 &&
 			strings.Index(url, "/pro") != 0 {
-			ctx.Redirect(http.StatusSeeOther, "/")
+			ctx.Redirect(http.StatusTemporaryRedirect, "/")
 			return
 		}
 
 		// Disallow directory listing.
 		if url == "/warm-up/" || url == "/warm-up" {
-			ctx.Redirect(http.StatusSeeOther, "/")
+			ctx.Redirect(http.StatusTemporaryRedirect, "/")
 			return
 		}
 
@@ -77,7 +74,7 @@ func Handler() gin.HandlerFunc {
 		// All the questions and source code end with .go.html
 		// Anything else is likely some mangled url.
 		if !strings.HasSuffix(url, ".go.html") {
-			ctx.Redirect(http.StatusSeeOther, "/")
+			ctx.Redirect(http.StatusTemporaryRedirect, "/")
 			return
 		}
 
